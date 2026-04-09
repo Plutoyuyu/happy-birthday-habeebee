@@ -20,22 +20,8 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
 @keyframes popIn{from{transform:scale(0.5);opacity:0;}to{transform:scale(1);opacity:1;}}
 
-/* LANDING */
-#landing{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px;padding:20px;}
-.pixel-title{font-size:clamp(10px,2.5vw,18px);color:var(--star);text-align:center;line-height:2.2;animation:bglow 2s infinite;}
-.countdown-label{font-size:8px;color:var(--blue);margin-bottom:14px;letter-spacing:2px;text-align:center;}
-.countdown-digits{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;}
-.time-block{text-align:center;}
-.time-num{font-size:clamp(18px,5vw,36px);color:var(--green);background:#111;border:3px solid var(--green);padding:8px 14px;display:block;box-shadow:4px 4px 0 #0a3d1e;}
-.time-unit{font-size:7px;color:#888;margin-top:6px;display:block;}
-.bar-wrap{width:min(400px,90vw);margin:0 auto;}
-.bar-label{font-size:7px;color:var(--pink);margin-bottom:8px;}
-.bar-outer{height:24px;border:3px solid var(--pink);background:#111;position:relative;overflow:hidden;}
-.bar-inner{height:100%;background:repeating-linear-gradient(90deg,var(--pink) 0,var(--pink) 8px,#c0428a 8px,#c0428a 16px);width:0%;transition:width 0.5s linear;}
-.bar-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:8px;color:#fff;white-space:nowrap;mix-blend-mode:difference;}
-
 /* LETTER */
-#letter-screen{display:none;position:relative;z-index:10;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;gap:20px;}
+#letter-screen{display:flex;position:relative;z-index:10;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;gap:20px;}
 .envelope{width:280px;height:200px;background:var(--cream);border:4px solid #c8a96e;position:relative;box-shadow:6px 6px 0 #5a3d1a;}
 .envelope-flap{position:absolute;top:0;left:0;width:100%;height:50%;clip-path:polygon(0 0,50% 60%,100% 0);background:#e8d5a0;border-bottom:4px solid #c8a96e;transform-origin:top center;transition:transform 0.6s ease;}
 .envelope.open .envelope-flap{transform:rotateX(180deg);}
@@ -124,27 +110,6 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 <div class="stars" id="stars"></div>
 <canvas id="confetti-canvas"></canvas>
 
-<!-- LANDING -->
-<div id="landing">
-  <div class="pixel-title">★ LOADING... ★<br><span style="font-size:0.65em;color:#aaa;">a special message incoming</span></div>
-  <div>
-    <div class="countdown-label">— TIME REMAINING —</div>
-    <div class="countdown-digits">
-      <div class="time-block"><span class="time-num" id="cd-days">00</span><span class="time-unit">DAYS</span></div>
-      <div style="align-self:center;font-size:24px;color:var(--star);margin-bottom:20px">:</div>
-      <div class="time-block"><span class="time-num" id="cd-hours">00</span><span class="time-unit">HRS</span></div>
-      <div style="align-self:center;font-size:24px;color:var(--star);margin-bottom:20px">:</div>
-      <div class="time-block"><span class="time-num" id="cd-mins">00</span><span class="time-unit">MIN</span></div>
-      <div style="align-self:center;font-size:24px;color:var(--star);margin-bottom:20px">:</div>
-      <div class="time-block"><span class="time-num" id="cd-secs">00</span><span class="time-unit">SEC</span></div>
-    </div>
-    <div class="bar-wrap">
-      <div class="bar-label">PROGRESS</div>
-      <div class="bar-outer"><div class="bar-inner" id="progress-bar"></div><span class="bar-text" id="bar-text">0%</span></div>
-    </div>
-  </div>
-</div>
-
 <!-- LETTER SCREEN -->
 <div id="letter-screen">
   <div style="font-size:9px;color:var(--star);margin-bottom:24px;animation:blink 1s infinite;">★ IT'S TIME ★</div>
@@ -162,9 +127,9 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 <div id="letter-open">
   <div class="letter-paper">
     <h2>★ Happy Birthday ★</h2>
-    <p>To my number one habibi —</p>
-    <p>Today the stars aligned just to celebrate you. You make every day feel like a cheat code unlocked.</p>
-    <p>Thank you for being my player two. Always.</p>
+    <p>To the sweetest spongey cakey —</p>
+    <p>Today the stars aligned just to celebrate you. You make every day filled with sun rays.</p>
+    <p>Thank you for being my player two.</p>
     <p style="color:var(--pink);font-size:1.2em;">♥ ♥ ♥</p>
     <button class="continue-btn" id="continue-btn">▶ ENTER GAME</button>
   </div>
@@ -237,23 +202,6 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
   }
 })();
 
-// COUNTDOWN — Milan April 10 2026 00:00 (CEST = UTC+2)
-const TARGET=new Date('2026-04-10T00:00:00+02:00');
-const START_REF=new Date('2026-04-01T00:00:00+02:00');
-function pad(n){return String(n).padStart(2,'0');}
-function updateCountdown(){
-  const now=new Date();const diff=TARGET-now;
-  if(diff<=0){clearInterval(cdInterval);document.getElementById('landing').style.display='none';showLetterScreen();return;}
-  const pct=Math.min(100,Math.max(0,Math.round((now-START_REF)/(TARGET-START_REF)*100)));
-  document.getElementById('cd-days').textContent=pad(Math.floor(diff/(1000*60*60*24)));
-  document.getElementById('cd-hours').textContent=pad(Math.floor((diff%(1000*60*60*24))/(1000*60*60)));
-  document.getElementById('cd-mins').textContent=pad(Math.floor((diff%(1000*60*60))/(1000*60)));
-  document.getElementById('cd-secs').textContent=pad(Math.floor((diff%60000)/1000));
-  document.getElementById('progress-bar').style.width=pct+'%';
-  document.getElementById('bar-text').textContent=pct+'%';
-}
-const cdInterval=setInterval(updateCountdown,1000);updateCountdown();
-
 // LETTER
 let letterShown=false;
 function showLetterScreen(){
@@ -265,6 +213,7 @@ function showLetterScreen(){
     setTimeout(()=>{ls.style.display='none';document.getElementById('letter-open').style.display='flex';},800);
   },{once:true});
 }
+showLetterScreen();
 document.getElementById('continue-btn').addEventListener('click',function(){
   document.getElementById('letter-open').style.display='none';
   const mp=document.getElementById('main-page');mp.style.display='block';
@@ -457,7 +406,7 @@ document.getElementById('wish-save').addEventListener('click',function(){
 });
 
 // PHOTOS
-const photos=[{src:'photo1.jpg',caption:'OUR STORY'},{src:'photo2.jpg',caption:'BEST DAY'},{src:'photo3.jpg',caption:'YOU & ME'},{src:'photo4.jpg',caption:'ADVENTURES'},{src:'photo5.jpg',caption:'HABIBI ♥'},{src:'photo6.jpg',caption:'ALWAYS US'}];
+const photos=[{src:'1.jpg',caption:'baby habeebee'},{src:'2.JPG',caption:'you&me'},{src:'3.jpg',caption:'cute habibi'},{src:'4.jpg',caption:'habibi with a happy belly'},{src:'5.jpg',caption:'professional HABIBI ♥'},{src:'6.JPG',caption:'habibi giving a kiss'}];
 const photoBgs=['#1a1a3e','#1a3e1a','#3e1a1a','#1a3e3e','#3e1a3e','#3e3e1a'];
 function buildPhotoStrip(){
   const strip=document.getElementById('photo-strip');strip.innerHTML='';

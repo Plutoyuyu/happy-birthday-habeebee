@@ -43,16 +43,17 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 /* MAIN PAGE */
 #main-page{display:none;position:relative;z-index:10;padding:30px 20px 80px;max-width:960px;margin:0 auto;}
 
-/* VINYL — small sticker pinned top-left */
-.vinyl-sticker{position:absolute;top:30px;left:16px;width:110px;display:flex;flex-direction:column;align-items:center;gap:5px;background:#1a1a2e;border:3px solid var(--blue);padding:8px 6px;box-shadow:4px 4px 0 #0a1560;z-index:20;}
-.vinyl-disc-sm{width:62px;height:62px;border-radius:50%;background:#111;border:4px solid #2a2a3e;position:relative;display:flex;align-items:center;justify-content:center;}
+/* VINYL — centered banner between title and photos */
+.vinyl-sticker{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:14px;background:#1a1a2e;border:3px solid var(--blue);padding:12px 24px;box-shadow:4px 4px 0 #0a1560;z-index:20;margin:0 auto 36px;width:fit-content;max-width:90%;}
+.vinyl-disc-sm{width:62px;height:62px;border-radius:50%;background:#111;border:4px solid #2a2a3e;position:relative;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .vinyl-disc-sm::before{content:'';position:absolute;width:100%;height:100%;border-radius:50%;background:repeating-radial-gradient(circle at center,transparent 0,transparent 5px,rgba(110,198,255,0.08) 5px,rgba(110,198,255,0.08) 6px);}
 .vinyl-label-sm{width:22px;height:22px;border-radius:50%;background:var(--pink);border:2px solid #8b3060;display:flex;align-items:center;justify-content:center;font-size:3px;color:#fff;text-align:center;line-height:1.2;z-index:1;}
 .vinyl-disc-sm.spinning{animation:spin 2.5s linear infinite;}
-.vinyl-track-sm{font-size:4px;color:#aaa;text-align:center;line-height:1.5;text-transform:uppercase;}
+.vinyl-info{display:flex;flex-direction:column;align-items:flex-start;gap:6px;}
+.vinyl-track-sm{font-size:4px;color:#aaa;text-align:left;line-height:1.5;text-transform:uppercase;}
 .play-btn-sm{background:var(--green);color:#0a3d1e;border:none;padding:4px 8px;font-family:'Press Start 2P',monospace;font-size:5px;cursor:pointer;border-bottom:2px solid #0a3d1e;transition:transform 0.1s;white-space:nowrap;text-transform:uppercase;}
 .play-btn-sm:active{transform:translateY(1px);border-bottom-width:0;}
-.notes-sm{font-size:8px;color:var(--star);letter-spacing:4px;height:12px;text-align:center;}
+.notes-sm{font-size:8px;color:var(--star);letter-spacing:4px;height:12px;text-align:left;}
 
 /* TITLES */
 .main-habibi{text-align:center;font-size:clamp(7px,1.3vw,9px);color:var(--pink);margin-bottom:12px;letter-spacing:1px;padding-top:10px;text-transform:uppercase;}
@@ -138,20 +139,22 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 <!-- MAIN PAGE -->
 <div id="main-page">
 
-  <!-- VINYL STICKER — top left -->
+  <!-- TITLES -->
+  <div class="main-habibi">to the number one habibi</div>
+  <div class="main-hbd">HAPPY BIRTHDAY!</div>
+  <div class="deco-row">⭐ 🎮 ⭐</div>
+
+  <!-- VINYL PLAYER — centered between banner and photos -->
   <div class="vinyl-sticker">
     <div class="vinyl-disc-sm" id="vinyl-disc">
       <div class="vinyl-label-sm">HBD</div>
     </div>
-    <div class="vinyl-track-sm">♪ bday mix<br><span style="color:#444;font-size:3px;">8-BIT</span></div>
-    <button class="play-btn-sm" id="play-btn">▶ PLAY</button>
-    <div class="notes-sm" id="note-display"></div>
+    <div class="vinyl-info">
+      <div class="vinyl-track-sm">♪ bday mix<br><span style="color:#444;font-size:3px;">8-BIT</span></div>
+      <button class="play-btn-sm" id="play-btn">▶ PLAY</button>
+      <div class="notes-sm" id="note-display"></div>
+    </div>
   </div>
-
-  <!-- TITLES (centred, vinyl floats above on left) -->
-  <div class="main-habibi">to the number one habibi</div>
-  <div class="main-hbd">HAPPY BIRTHDAY!</div>
-  <div class="deco-row">⭐ 🎮 ⭐</div>
 
   <!-- PHOTO GALLERY -->
   <div class="photos-section">
@@ -190,7 +193,35 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
   </div>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot, orderBy, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA0LMYAOyjx4dZOSsBpzDYfaYrDj3Teo-E",
+  authDomain: "happy-birthday-habeebee.firebaseapp.com",
+  databaseURL: "https://happy-birthday-habeebee-default-rtdb.firebaseio.com",
+  projectId: "happy-birthday-habeebee",
+  storageBucket: "happy-birthday-habeebee.firebasestorage.app",
+  messagingSenderId: "473255145867",
+  appId: "1:473255145867:web:1ccadf7d2f81f2eb30ff8e"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Load existing wishes and listen for new ones in real time
+const wishesQuery = query(collection(db, 'wishes'), orderBy('createdAt', 'asc'));
+onSnapshot(wishesQuery, (snapshot) => {
+  const gallery = document.getElementById('wish-gallery');
+  gallery.innerHTML = '';
+  snapshot.forEach((doc) => {
+    const s = document.createElement('div');
+    s.className = 'wish-sticker';
+    s.textContent = doc.data().text;
+    gallery.appendChild(s);
+  });
+});
+
 // STARS
 (function(){
   const s=document.getElementById('stars');
@@ -397,12 +428,15 @@ document.getElementById('wish-btn').addEventListener('click',function(){
 });
 document.getElementById('wish-x').addEventListener('click',closeWish);
 document.getElementById('wish-cancel').addEventListener('click',closeWish);
-document.getElementById('wish-save').addEventListener('click',function(){
-  const txt=document.getElementById('wish-input').value.trim().toUpperCase();
+document.getElementById('wish-save').addEventListener('click', async function(){
+  const txt = document.getElementById('wish-input').value.trim().toUpperCase();
   if(!txt) return;
-  const s=document.createElement('div');s.className='wish-sticker';s.textContent=txt;
-  document.getElementById('wish-gallery').appendChild(s);
-  closeWish();fireConfetti();document.getElementById('cake-msg').textContent='WISH SAVED! ★';
+  try {
+    await addDoc(collection(db, 'wishes'), { text: txt, createdAt: serverTimestamp() });
+    closeWish(); fireConfetti(); document.getElementById('cake-msg').textContent='WISH SAVED! ★';
+  } catch(e) {
+    document.getElementById('cake-msg').textContent='ERROR SAVING WISH :(';
+  }
 });
 
 // PHOTOS
@@ -424,7 +458,7 @@ function buildPhotoStrip(){
   });
 }
 
-
+// 🎂 Ready!
 </script>
 </body>
 </html>
